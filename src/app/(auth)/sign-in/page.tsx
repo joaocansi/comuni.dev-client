@@ -32,7 +32,6 @@ export default function SignIn() {
             onPress={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: "http://localhost:8080",
               })
             }
           >
