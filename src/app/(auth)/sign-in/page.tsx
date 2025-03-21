@@ -32,6 +32,7 @@ export default function SignIn() {
             onPress={() =>
               authClient.signIn.social({
                 provider: "google",
+                callbackURL: process.env.NEXT_PUBLIC_CLIENT_URL,
               })
             }
           >
