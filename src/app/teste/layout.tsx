@@ -10,6 +10,17 @@ export default async function RootLayout({
   const s = await cookies();
   const { data } = await getCookies();
 
+  if (s.get("test")) {
+    console.log(s.get("test")?.value);
+  }
+
+  s.set("test", "teste", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 99999,
+  });
+
   return (
     <>
       <main className="container mx-auto max-w-7xl pt-8 px-6 flex-grow">
