@@ -26,6 +26,7 @@ export async function getCommunity(
 
   try {
     const response = await api.get(`/communities/${slug}`, {
+      withCredentials: true,
       headers: {
         Cookie: cookieHeader,
       },
