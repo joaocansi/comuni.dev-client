@@ -1,26 +1,22 @@
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
 
-import { authClient } from "@/src/shared/clients/auth-client";
+import { getCookies } from "../_actions/get-cookies";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
-
-  const cookies = await headers();
+  const s = await cookies();
+  const { data } = await getCookies();
 
   return (
     <>
       <main className="container mx-auto max-w-7xl pt-8 px-6 flex-grow">
-        {cookies.values().map((item) => {
-          return <h1 key={item}>{item}</h1>;
+        {s.getAll().map((item) => {
+          return <h1 key={item.name}>{item.value}</h1>;
         })}
+        <h1>{data}</h1>
       </main>
     </>
   );

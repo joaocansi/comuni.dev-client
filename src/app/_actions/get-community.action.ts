@@ -1,6 +1,6 @@
 "use server";
 
-import { ActionResponse } from "./_action";
+import { ActionResponse, sessionCookies } from "./_action";
 import { handleApiError } from "./_api-messager";
 
 import { api } from "@/src/shared/clients/api-client";
@@ -22,11 +22,14 @@ export type Community = {
 export async function getCommunity(
   slug: string,
 ): Promise<ActionResponse<Community>> {
-  // const cookieHeader = await sessionCookies();
+  const cookieHeader = await sessionCookies();
 
   try {
     const response = await api.get(`/communities/${slug}`, {
       withCredentials: true,
+      headers: {
+        Cookie: cookieHeader,
+      },
     });
     const data = response.data;
 
