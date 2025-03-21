@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { getCookies } from "../_actions/get-cookies";
+import test from "../_actions/test";
 
 export default async function RootLayout({
   children,
@@ -9,6 +10,8 @@ export default async function RootLayout({
 }) {
   const s = await cookies();
   const { data } = await getCookies();
+
+  await test();
 
   return (
     <>
