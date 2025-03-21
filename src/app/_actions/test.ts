@@ -9,6 +9,6 @@ export default async function test() {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    maxAge: 99999,
+    expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 60),
   });
 }
