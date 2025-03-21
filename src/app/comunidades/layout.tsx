@@ -11,6 +11,7 @@ export default async function RootLayout({
   const session = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
+      credentials: "include",
     },
   });
 
