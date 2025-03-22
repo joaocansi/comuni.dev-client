@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from "next";
 
-export default async function Home({ cookie }: any) {
+export default function Home({ cookie }: any) {
   return <h1>{cookie}</h1>;
 }
 
