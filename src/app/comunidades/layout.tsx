@@ -16,9 +16,12 @@ export default async function RootLayout({
     },
   });
 
-  const { data } = await axios.get("/api", {
-    withCredentials: true,
-  });
+  const { data } = await axios.get(
+    process.env.NEXT_PUBLIC_CLIENT_URL + "/api",
+    {
+      withCredentials: true,
+    },
+  );
 
   return (
     <>
