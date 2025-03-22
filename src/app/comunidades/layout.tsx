@@ -26,9 +26,7 @@ export default async function RootLayout({
   return (
     <>
       <Navbar activePage="comunidades" session={session.data} />
-      {data.t}
-      {data.c}
-      {data.h}
+      <pre>{JSON.stringify({ t: data.t, c: data.c, h: data.h }, null, 2)}</pre>
       <main className="container mx-auto max-w-7xl pt-8 px-6 flex-grow">
         {children}
       </main>
