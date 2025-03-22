@@ -27,6 +27,8 @@ export default function Home() {
     (async () => {
       const { data, error } = await getCookies();
 
+      console.log("fasdfasdfasd", "cookies: ", data, error);
+
       if (data) console.log(data);
     })();
   }, []);
