@@ -2,9 +2,6 @@
 
 import { FormikProvider, useFormik } from "formik";
 import { Divider } from "@heroui/react";
-import { useEffect } from "react";
-
-import { getCookies } from "../_actions/get-cookies";
 
 import CommunitiesForm, {
   CommunitiesFormik,
@@ -22,16 +19,6 @@ export default function Home() {
     },
     onSubmit: () => {},
   });
-
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await getCookies();
-
-      console.log("fasdfasdfasd", "cookies: ", data, error);
-
-      if (data) console.log(data);
-    })();
-  }, []);
 
   return (
     <FormikProvider value={formik}>
