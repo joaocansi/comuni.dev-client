@@ -5,7 +5,7 @@ import { ProjectsTab } from "./tabs/community-projects-tab";
 import { SocialMediaTab } from "./tabs/community-social-media-tab";
 
 import { useCommunity } from "@/src/shared/hooks/community.hook";
-import { Tabs } from "@/src/shared/components/tabs";
+import { Tabs } from "@/src/components/tabs";
 
 export function CommunityNavigation() {
   const { sessionRole } = useCommunity();

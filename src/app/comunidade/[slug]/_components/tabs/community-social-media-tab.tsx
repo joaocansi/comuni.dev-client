@@ -2,7 +2,7 @@ import { Divider } from "@heroui/divider";
 import { Image } from "@heroui/image";
 import Link from "next/link";
 
-import { GithubIcon } from "@/src/shared/components/icons";
+import { GithubIcon } from "@/src/components/icons";
 
 export function SocialMediaTab() {
   return (

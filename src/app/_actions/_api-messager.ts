@@ -44,6 +44,8 @@ export function handleApiError(error: unknown, customMessage?: CustomMessage) {
 
   const { type } = error.response.data as ExpectedResponse;
 
+  console.log(error.response);
+
   return {
     message: (customMessage && customMessage[type]) || ERROR_MESSAGES[type],
     type,

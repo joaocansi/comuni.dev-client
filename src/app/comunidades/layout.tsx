@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import Navbar from "@/src/shared/components/navbar";
+import Navbar from "@/src/components/navbar";
 import { authClient } from "@/src/shared/clients/auth-client";
 
 export default async function RootLayout({

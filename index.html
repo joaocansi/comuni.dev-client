@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Car Simulator</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: Arial, sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+            padding: 5px;
+        }
+        #speedometer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        Three.js Car Simulator<br>
+        Use WASD or Arrow Keys to drive | Spacebar to brake
+    </div>
+    <div id="speedometer">Speed: 0 km/h</div>
+    <script type="module">
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb); // Sky blue
+
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, -10);
+        camera.lookAt(0, 0, 0);
+
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        scene.add(directionalLight);
+
+        // Ground
+        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x1e824c,  // Green
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Road
+        const roadGeometry = new THREE.PlaneGeometry(10, 100);
+        const roadMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x333333,  // Dark gray
+            roughness: 0.5,
+            metalness: 0.3
+        });
+        const road = new THREE.Mesh(roadGeometry, roadMaterial);
+        road.rotation.x = -Math.PI / 2;
+        road.position.y = 0.01; // Slightly above ground to prevent z-fighting
+        road.receiveShadow = true;
+        scene.add(road);
+
+        // Road markings
+        const markingsGeometry = new THREE.PlaneGeometry(0.5, 100);
+        const markingsMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const markings = new THREE.Mesh(markingsGeometry, markingsMaterial);
+        markings.rotation.x = -Math.PI / 2;
+        markings.position.y = 0.02; // Slightly above road
+        scene.add(markings);
+
+        // Add some trees and obstacles
+        function createTree(x, z) {
+            const group = new THREE.Group();
+            
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1.5, 8);
+            const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 0.75;
+            trunk.castShadow = true;
+            group.add(trunk);
+            
+            // Foliage
+            const foliageGeometry = new THREE.ConeGeometry(1, 2, 8);
+            const foliageMaterial = new THREE.MeshStandardMaterial({ color: 0x2E8B57 });
+            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+            foliage.position.y = 2.5;
+            foliage.castShadow = true;
+            group.add(foliage);
+            
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        // Create some trees
+        for (let i = 0; i < 30; i++) {
+            const x = (Math.random() - 0.5) * 80;
+            const z = (Math.random() - 0.5) * 80;
+            // Don't place trees on the road
+            if (Math.abs(x) > 5) {
+                createTree(x, z);
+            }
+        }
+
+        // Car
+        const carGroup = new THREE.Group();
+        
+        // Car body
+        const carBodyGeometry = new THREE.BoxGeometry(2, 0.6, 4);
+        const carBodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const carBody = new THREE.Mesh(carBodyGeometry, carBodyMaterial);
+        carBody.position.y = 0.7;
+        carBody.castShadow = true;
+        carGroup.add(carBody);
+        
+        // Car roof
+        const carRoofGeometry = new THREE.BoxGeometry(1.8, 0.5, 1.8);
+        const carRoofMaterial = new THREE.MeshStandardMaterial({ color: 0xcc0000 });
+        const carRoof = new THREE.Mesh(carRoofGeometry, carRoofMaterial);
+        carRoof.position.y = 1.25;
+        carRoof.position.z = -0.2;
+        carRoof.castShadow = true;
+        carGroup.add(carRoof);
+        
+        // Car wheels
+        function createWheel(x, z) {
+            const wheelGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.2, 16);
+            const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+            wheel.rotation.z = Math.PI / 2;
+            wheel.position.set(x, 0.4, z);
+            wheel.castShadow = true;
+            return wheel;
+        }
+        
+        const wheelFL = createWheel(0.8, 1.2);
+        const wheelFR = createWheel(-0.8, 1.2);
+        const wheelBL = createWheel(0.8, -1.2);
+        const wheelBR = createWheel(-0.8, -1.2);
+        
+        carGroup.add(wheelFL, wheelFR, wheelBL, wheelBR);
+        
+        // Headlights
+        function createHeadlight(x) {
+            const geometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff,
+                emissive: 0xffffcc,
+                emissiveIntensity: 0.5
+            });
+            const headlight = new THREE.Mesh(geometry, material);
+            headlight.position.set(x, 0.7, 2);
+            return headlight;
+        }
+        
+        const headlightL = createHeadlight(0.6);
+        const headlightR = createHeadlight(-0.6);
+        
+        carGroup.add(headlightL, headlightR);
+        
+        // Add actual light from headlights
+        const headlightLightL = new THREE.SpotLight(0xffffcc, 1, 20, Math.PI / 8, 0.5, 2);
+        headlightLightL.position.set(0.6, 0.7, 2);
+        headlightLightL.target.position.set(0.6, 0, 8);
+        carGroup.add(headlightLightL);
+        carGroup.add(headlightLightL.target);
+        
+        const headlightLightR = new THREE.SpotLight(0xffffcc, 1, 20, Math.PI / 8, 0.5, 2);
+        headlightLightR.position.set(-0.6, 0.7, 2);
+        headlightLightR.target.position.set(-0.6, 0, 8);
+        carGroup.add(headlightLightR);
+        carGroup.add(headlightLightR.target);
+        
+        carGroup.position.y = 0.4;
+        scene.add(carGroup);
+
+        // Third-person camera setup
+        const cameraOffset = new THREE.Vector3(0, 3, -6);
+        const cameraTarget = new THREE.Vector3(0, 1, 0);
+
+        // Car physics
+        const car = {
+            position: new THREE.Vector3(0, 0, 0),
+            speed: 0,
+            acceleration: 0,
+            direction: 0,
+            rotation: 0,
+            steeringAngle: 0,
+            maxSpeed: 20,
+            maxReverseSpeed: -5,
+            accelerationRate: 0.1,
+            brakingRate: 0.2,
+            steeringRate: 0.03,
+            frictionRate: 0.03,
+            steeringReturnRate: 0.1,
+            maxSteeringAngle: Math.PI / 4
+        };
+
+        // Controls
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+            w: false,
+            s: false,
+            a: false,
+            d: false,
+            ' ': false // Spacebar for braking
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if (keys[e.key] !== undefined) {
+                keys[e.key] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys[e.key] !== undefined) {
+                keys[e.key] = false;
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Speedometer
+        const speedometer = document.getElementById('speedometer');
+
+        // Game loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Input handling
+            const forward = keys.ArrowUp || keys.w;
+            const reverse = keys.ArrowDown || keys.s;
+            const left = keys.ArrowLeft || keys.a;
+            const right = keys.ArrowRight || keys.d;
+            const brake = keys[' '];
+            
+            // Apply acceleration
+            if (forward && car.speed < car.maxSpeed) {
+                car.acceleration = car.accelerationRate;
+            } else if (reverse && car.speed > car.maxReverseSpeed) {
+                car.acceleration = -car.accelerationRate;
+            } else if (brake) {
+                // Apply brakes
+                if (car.speed > 0) {
+                    car.acceleration = -car.brakingRate;
+                } else if (car.speed < 0) {
+                    car.acceleration = car.brakingRate;
+                } else {
+                    car.acceleration = 0;
+                }
+            } else {
+                // Apply friction/drag
+                car.acceleration = 0;
+                if (Math.abs(car.speed) < car.frictionRate) {
+                    car.speed = 0;
+                } else if (car.speed > 0) {
+                    car.speed -= car.frictionRate;
+                } else if (car.speed < 0) {
+                    car.speed += car.frictionRate;
+                }
+            }
+            
+            // Update speed
+            car.speed += car.acceleration;
+            car.speed = Math.max(car.maxReverseSpeed, Math.min(car.maxSpeed, car.speed));
+            
+            // Update steering
+            if (Math.abs(car.speed) > 0.1) {
+                if (left) {
+                    car.steeringAngle = Math.max(-car.maxSteeringAngle, car.steeringAngle - car.steeringRate);
+                } else if (right) {
+                    car.steeringAngle = Math.min(car.maxSteeringAngle, car.steeringAngle + car.steeringRate);
+                } else {
+                    // Return steering to center
+                    if (Math.abs(car.steeringAngle) < car.steeringReturnRate) {
+                        car.steeringAngle = 0;
+                    } else if (car.steeringAngle > 0) {
+                        car.steeringAngle -= car.steeringReturnRate;
+                    } else {
+                        car.steeringAngle += car.steeringReturnRate;
+                    }
+                }
+            }
+            
+            // Update rotation (only when moving)
+            if (Math.abs(car.speed) > 0.1) {
+                // Steering is more effective at higher speeds
+                // Reverse steering when going backward
+                const steeringFactor = car.speed > 0 ? 1 : -1;
+                car.rotation += car.steeringAngle * (Math.abs(car.speed) / car.maxSpeed) * steeringFactor * 0.05;
+            }
+            
+            // Calculate movement direction
+            const direction = new THREE.Vector3(
+                Math.sin(car.rotation),
+                0,
+                Math.cos(car.rotation)
+            );
+            
+            // Update position
+            car.position.add(direction.multiplyScalar(car.speed * 0.1));
+            
+            // Update car model
+            carGroup.position.x = car.position.x;
+            carGroup.position.z = car.position.z;
+            carGroup.rotation.y = car.rotation;
+            
+            // Update wheel rotation for steering
+            wheelFL.rotation.y = car.steeringAngle;
+            wheelFR.rotation.y = car.steeringAngle;
+            
+            // Update camera position
+            const rotatedOffset = new THREE.Vector3(
+                cameraOffset.x * Math.cos(car.rotation) - cameraOffset.z * Math.sin(car.rotation),
+                cameraOffset.y,
+                cameraOffset.x * Math.sin(car.rotation) + cameraOffset.z * Math.cos(car.rotation)
+            );
+            
+            camera.position.copy(car.position).add(rotatedOffset);
+            
+            const lookAtPosition = new THREE.Vector3(
+                car.position.x + Math.sin(car.rotation) * 5,
+                car.position.y + 1,
+                car.position.z + Math.cos(car.rotation) * 5
+            );
+            
+            camera.lookAt(lookAtPosition);
+            
+            // Update speedometer
+            speedometer.textContent = `Speed: ${Math.abs(car.speed * 5).toFixed(1)} km/h`;
+            
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

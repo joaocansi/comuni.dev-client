@@ -7,7 +7,7 @@ import { CommunityHeader } from "./_components/community-header";
 import { CommunityNavigation } from "./_components/community-navigation";
 
 import { authClient } from "@/src/shared/clients/auth-client";
-import Navbar from "@/src/shared/components/navbar";
+import Navbar from "@/src/components/navbar";
 import { SessionProvider } from "@/src/shared/hooks/session.hook";
 import { CommunityProvider } from "@/src/shared/hooks/community.hook";
 

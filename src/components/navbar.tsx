@@ -11,6 +11,7 @@ import {
 } from "@heroui/navbar";
 import React from "react";
 import Image from "next/image";
+import { Modal, ModalBody, ModalHeader } from "@heroui/modal";
 
 import { ThemeSwitch } from "./theme-switch";
 import { Avatar } from "./avatar";
@@ -64,6 +65,13 @@ export default function Navbar({ session, activePage }: NavbarProps) {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
+        <Button color="primary" variant="solid">
+          + Criar comunidade
+        </Button>
+        <Modal>
+          <ModalHeader />
+          <ModalBody>fasdfasd</ModalBody>
+        </Modal>
         <ThemeSwitch />
         <NavbarItem className="gap-2 flex">
           {session ? (

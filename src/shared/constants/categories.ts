@@ -22,7 +22,6 @@ export const technologies = [
   "Rust",
   "JavaScript",
   "TypeScript",
-  "PHP",
   "Ruby",
   "HTML",
   "CSS",
