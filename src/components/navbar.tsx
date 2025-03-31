@@ -65,7 +65,12 @@ export default function Navbar({ session, activePage }: NavbarProps) {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        <Button color="primary" variant="solid">
+        <Button
+          as={Link}
+          color="primary"
+          href="/comunidade/criar"
+          variant="solid"
+        >
           + Criar comunidade
         </Button>
         <Modal>

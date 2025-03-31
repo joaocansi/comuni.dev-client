@@ -36,15 +36,19 @@ export type CustomMessage = {
 };
 
 export function handleApiError(error: unknown, customMessage?: CustomMessage) {
-  if (!(error instanceof AxiosError) || !error.response) {
-    throw new Error(
-      "Não foi possível realizar a operação. Tente novamente mais tarde.",
-    );
+  if (
+    !(error instanceof AxiosError) ||
+    !error.response ||
+    error.response.status >= 500
+  ) {
+    return {
+      type: "INTERNAL_SERVER_ERROR",
+      message:
+        "Não foi possível processar essa operação. Tente novamente mais tarde.",
+    };
   }
 
   const { type } = error.response.data as ExpectedResponse;
-
-  console.log(error.response);
 
   return {
     message: (customMessage && customMessage[type]) || ERROR_MESSAGES[type],

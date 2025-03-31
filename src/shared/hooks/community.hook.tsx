@@ -30,6 +30,7 @@ export const CommunityProvider = ({
 }: CommunityProviderProps) => {
   const [communityState, setCommunityState] = useState(community);
   const { user } = useSession();
+
   let sessionRole: SessionRole = "";
 
   if (user) {
