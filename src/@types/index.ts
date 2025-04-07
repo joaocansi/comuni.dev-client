@@ -32,3 +32,8 @@ export type PaginationOptions<Filter> = {
   limit: number;
   filters?: Filter;
 };
+
+export type KeyLabel = {
+  key: string;
+  label: string;
+};

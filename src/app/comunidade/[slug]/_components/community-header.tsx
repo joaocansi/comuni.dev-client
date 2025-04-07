@@ -2,13 +2,17 @@
 
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
+import { Button } from "@heroui/react";
+import { useState } from "react";
+import { FaEdit } from "react-icons/fa";
 
-import { CommunityHeaderButtons } from "./community-header-buttons";
+import { CommunityUpdateModal } from "./modals/community-update.modal";
 
 import { useCommunity } from "@/src/shared/hooks/community.hook";
 
 export function CommunityHeader() {
-  const { community } = useCommunity();
+  const { community, isOwner } = useCommunity();
+  const [isOpen, setOpen] = useState(false);
 
   const renderTagChip = (tag: string) => {
     return <Chip key={`page-${community.slug}-tag-${tag}`}>{tag}</Chip>;
@@ -24,9 +28,18 @@ export function CommunityHeader() {
           {community.tags.map(renderTagChip)}
         </div>
         <p>{community.description}</p>
-        <div className="flex gap-2">
-          <CommunityHeaderButtons community={community} />
-        </div>
+        {isOwner && (
+          <div className="flex gap-2">
+            <Button
+              color="default"
+              startContent={<FaEdit />}
+              onPress={() => setOpen(true)}
+            >
+              Editar
+            </Button>
+            <CommunityUpdateModal isOpen={isOpen} setOpen={setOpen} />
+          </div>
+        )}
       </div>
     </div>
   );

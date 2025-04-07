@@ -2,11 +2,22 @@ import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { Card, CardBody } from "@heroui/card";
 import Image from "next/image";
+import { useState } from "react";
+
+import { CommunityEventCreateModal } from "../modals/community-event-create.modal";
 
 export function EventsTab() {
+  const [isOpen, setOpen] = useState(false);
+
   return (
     <div className="mt-4">
-      <h4 className="mb-2 text-lg">Próximo Evento</h4>
+      <div className="flex justify-between mb-2 items-center">
+        <h4 className="text-lg">Próximo Evento</h4>
+        <Button className="-mt-4" color="primary" onPress={() => setOpen(true)}>
+          + Novo Evento
+        </Button>
+        <CommunityEventCreateModal isOpen={isOpen} setOpen={setOpen} />
+      </div>
       <Divider />
       <div className="flex flex-col gap-2">
         <Card className="mt-8">

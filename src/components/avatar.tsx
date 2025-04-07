@@ -45,14 +45,13 @@ export const Avatar = ({ user }: AvatarProps) => {
           className="h-14 gap-2"
           textValue={user.email}
         >
-          <p className="font-semibold">Signed in as</p>
+          <p className="font-semibold">Logado como</p>
           <p className="font-semibold">{user.email}</p>
         </DropdownItem>
-        <DropdownItem key="settings">My Profile</DropdownItem>
-        <DropdownItem key="team_settings">My Projects</DropdownItem>
-        <DropdownItem key="analytics">My Communities</DropdownItem>
+        <DropdownItem key="team_settings">Comunidades</DropdownItem>
+        <DropdownItem key="analytics">Eventos</DropdownItem>
         <DropdownItem key="logout" color="danger" onPress={handleSignOut}>
-          Log Out
+          Sair
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>

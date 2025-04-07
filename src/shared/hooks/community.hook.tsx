@@ -9,12 +9,10 @@ import {
   getCommunity,
 } from "@/src/app/_actions/get-community.action";
 
-type SessionRole = "" | "DEFAULT" | "OWNER";
-
 type CommunityContext = {
   refreshCommunity: () => Promise<void>;
+  isOwner: boolean;
   community: Community;
-  sessionRole: SessionRole;
 };
 
 type CommunityProviderProps = {
@@ -31,15 +29,7 @@ export const CommunityProvider = ({
   const [communityState, setCommunityState] = useState(community);
   const { user } = useSession();
 
-  let sessionRole: SessionRole = "";
-
-  if (user) {
-    if (user.id === communityState.owner.id) {
-      sessionRole = "OWNER";
-    } else if (user.id === communityState.sessionUser) {
-      sessionRole = "DEFAULT";
-    }
-  }
+  const isOwner = !!(user && user.id === communityState.owner.id);
 
   const refreshCommunity = async () => {
     const { data } = await getCommunity(communityState.slug);
@@ -51,7 +41,7 @@ export const CommunityProvider = ({
     <CommunityContext.Provider
       value={{
         community: communityState,
-        sessionRole,
+        isOwner,
         refreshCommunity,
       }}
     >
